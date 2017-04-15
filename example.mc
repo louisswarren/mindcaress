@@ -1,4 +1,4 @@
-MACRO @double[x) x + x
+MACRO @double(x) x + x
 
 LET let = "let"
 
