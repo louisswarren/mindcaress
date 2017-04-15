@@ -4,8 +4,11 @@ from token import Token
 class ParserError(Exception):
     def __init__(self, token_stream, *expected_tokens):
         template = "Received {}, expected {{{}}}"
-        token = token_stream.current
-        self.message = template.format(token, ', '.join(expected_tokens))
+        if token_stream.lookahead():
+            token_msg = "{} ('{}')".format(*token_stream.current)
+        else:
+            token_msg = 'out of tokens'
+        self.message = template.format(token_msg, ', '.join(expected_tokens))
 
     def __str__(self):
         return self.message
@@ -31,7 +34,7 @@ class TokenStream:
         representation and type"""
         print("Consuming,", self.current)
         if self.lookahead() not in expected:
-            raise ParserError(self.current, expected)
+            raise ParserError(self, *expected)
         consumed_type, consumed_literal = self.current
         try:
             self.current = next(self.source)
