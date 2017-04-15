@@ -18,32 +18,35 @@ class Token:
     RSBRA = 'RSBRA'
     ID = 'ID'
     MACROID = 'MACROID'
+    MACROPARAM = 'MACROPARAM'
     NUM = 'NUM'
     CHAR = 'CHAR'
     STR = 'STR'
 
     regexes = [
-        (ELSE,     'ELSE'                             ),
-        (END,      'END'                              ),
-        (IF,       'IF'                               ),
-        (INPUT,    'INPUT'                            ),
-        (LET,      'LET'                              ),
-        (MACRO,    'MACRO'                            ),
-        (PRINT,    'PRINT'                            ),
-        (THEN,     'THEN'                             ),
-        (ASSIGN,   '='                                ),
-        (ADD,      '[+]'                              ),
-        (DIV,      '[/]'                              ),
-        (MUL,      '[*]'                              ),
-        (SUB,      '-'                                ),
-        (LPAR,     '[(]'                              ),
-        (RPAR,     '[)]'                              ),
-        (LSBRA,    '\\['                              ),
-        (RSBRA,    '\\]'                              ),
-        (ID,       '[a-z_][a-z0-9_]*'                 ),
-        (MACROID,  '@[a-z_][a-z0-9_]*'                ),
-        (NUM,      '[0-9]+'                           ),
-        (CHAR,     "'.'"                              ),
-        (STR,      '"([^"]|\\\\")+"'                  ),
+        (ELSE,        'ELSE'                 ),
+        (END,         'END'                  ),
+        (IF,          'IF'                   ),
+        (INPUT,       'INPUT'                ),
+        (LET,         'LET'                  ),
+        (MACRO,       'MACRO'                ),
+        (PRINT,       'PRINT'                ),
+        (THEN,        'THEN'                 ),
+        (ASSIGN,      '='                    ),
+        (ADD,         '[+]'                  ),
+        (DIV,         '[/]'                  ),
+        (MUL,         '[*]'                  ),
+        (SUB,         '-'                    ),
+        (LPAR,        '[(]'                  ),
+        (RPAR,        '[)]'                  ),
+        (LSBRA,       '\\['                  ),
+        (RSBRA,       '\\]'                  ),
+        (ID,          '[a-z_][a-z0-9_]*'     ),
+        (MACROID,     '@[a-z_][a-z0-9_]*'    ),
+        (MACROPARAM,  '[$][a-z_][a-z0-9_]*'  ),
+        (NUM,         '[0-9]+'               ),
+        (CHAR,        "'.'"                  ),
+        (STR,         '"([^"]|\\\\")+"'      ),
     ]
+
 
