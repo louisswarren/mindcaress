@@ -14,11 +14,12 @@ class ParserError(Exception):
         return self.message
 
 class TokenStream:
-    """Stream of tokens, with features needed by a parser."""
+    """Stream of tokens, with features needed by a parser. Strips comments and
+    handles macros."""
 
     def __init__(self, source):
         self.source = source
-        self.current = next(self.source)
+        self.next_token()
 
     def __iter__(self):
         yield self.current
@@ -31,13 +32,14 @@ class TokenStream:
 
     def consume(self, *expected):
         """Consume the current token, return the next token's literal
-        representation and type"""
+        representation and type. If expected is empty, all tokens are
+        accepted."""
         print("Consuming,", self.current)
-        if self.lookahead() not in expected:
+        if self.lookahead() not in expected and expected:
             raise ParserError(self, *expected)
         consumed_type, consumed_literal = self.current
         try:
-            self.current = next(self.source)
+            self.next_token()
         except StopIteration:
             self.current = None
         return consumed_literal, consumed_type
@@ -46,50 +48,33 @@ class TokenStream:
         if self.lookahead() in expected:
             return self.consume(*expected)
 
-class Preprocessor:
-    def __init__(self, stream):
-        self.stream = stream
-        self.macros = {}
-        self.process()
-
-    def __iter__(self):
-        yield from self.stream
-
-    def process(self):
+    def next_token(self):
         while True:
+            self.current = next(self.source)
             if self.stream.lookahead() == Token.COMMENT:
                 self.stream.consume(Token.COMMENT)
             elif self.stream.lookahead() == Token.MACRO:
-                raise NotImplementedError
+                self._defmacro()
             elif self.stream.lookahead() == Token.MACROID:
                 raise NotImplementedError
             else:
                 break
 
-    def lookahead(self):
-        return self.stream.lookahead()
-
-    def consume(self, *expected):
-        return self.stream.consume(*expected)
-
-    def try_consume(self, *expected):
-        return self.stream.consume(*expected)
-
-
-def macrodef(stream):
-    stream.consume(Token.MACRO)
-    name, _ = stream.consume(Token.MACROID)
-    if stream.consume(Token.LPAR):
-        params = [stream.consume(Token.MACROPARAM)[0]]
-        while stream.try_consume(Token.COMMA):
-            params.append(stream.consume(Token.MACROPARAM)[0])
-        stream.consume(Token.RPAR)
-    else:
-        params = []
-    stream.consume(Token.LBRAC)
-    contents = expression(stream)
-    stream.consume(Token.RBRAC)
-    macros[name] = (params, contents)
+    def _defmacro(self):
+        self.consume(Token.MACRO)
+        name, _ = self.consume(Token.MACROID)
+        if self.consume(Token.LPAR):
+            params = [self.consume(Token.MACROPARAM)[0]]
+            while self.try_consume(Token.COMMA):
+                params.append(self.consume(Token.MACROPARAM)[0])
+            self.consume(Token.RPAR)
+        else:
+            params = []
+        self.consume(Token.LBRAC)
+        contents = []
+        while not self.try_consume(Token.RBRAC):
+            contents.append(self.consume())
+        self.macros[name] = (params, contents)
 
 
 def parser(tokens):
