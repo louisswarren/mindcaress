@@ -45,8 +45,36 @@ class TokenStream:
     def try_consume(self, *expected):
         if self.lookahead() in expected:
             return self.consume(*expected)
-# Macros should be preprocessed
-macros = {}
+
+class Preprocessor:
+    def __init__(self, stream):
+        self.stream = stream
+        self.macros = {}
+        self.process()
+
+    def __iter__(self):
+        yield from self.stream
+
+    def process(self):
+        while True:
+            if self.stream.lookahead() == Token.COMMENT:
+                self.stream.consume(Token.COMMENT)
+            elif self.stream.lookahead() == Token.MACRO:
+                raise NotImplementedError
+            elif self.stream.lookahead() == Token.MACROID:
+                raise NotImplementedError
+            else:
+                break
+
+    def lookahead(self):
+        return self.stream.lookahead()
+
+    def consume(self, *expected):
+        return self.stream.consume(*expected)
+
+    def try_consume(self, *expected):
+        return self.stream.consume(*expected)
+
 
 def macrodef(stream):
     stream.consume(Token.MACRO)
@@ -65,7 +93,7 @@ def macrodef(stream):
 
 
 def parser(tokens):
-    stream = TokenStream(tokens)
+    stream = Preprocessor(TokenStream(tokens))
     return statements(stream)
 
 
