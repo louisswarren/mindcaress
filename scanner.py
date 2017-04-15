@@ -37,3 +37,10 @@ def scanner(src, regexes):
         token, token_literal = max(matches, key=lambda x: len(x[1]))
         yield token, token_literal
         i = skip_whitespace(src, i + len(token_literal))
+
+if __name__ == '__main__':
+    with open('example.mc') as f:
+        from token import Token
+        for x in scanner(f.read(), Token.regexes):
+            print(x)
+

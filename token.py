@@ -1,4 +1,5 @@
 class Token:
+    COMMENT =         'COMMENT'
     ELSE =            'ELSE'
     END =             'END'
     IF =              'IF'
@@ -27,6 +28,7 @@ class Token:
     STR =             'STR'
 
     regexes = [
+        (COMMENT,     '/[*][^*]*[*]/'        ),
         (ELSE,        'ELSE'                 ),
         (END,         'END'                  ),
         (IF,          'IF'                   ),
@@ -38,7 +40,7 @@ class Token:
         (COMMA,       ','                    ),
         (ASSIGN,      '='                    ),
         (ADD,         '[+]'                  ),
-        (DIV,         '[/]'                  ),
+        (DIV,         '/'                    ),
         (MUL,         '[*]'                  ),
         (SUB,         '-'                    ),
         (LPAR,        '[(]'                  ),
