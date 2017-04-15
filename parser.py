@@ -67,6 +67,8 @@ def statements(stream):
 def statement(stream):
     if stream.lookahead() == Token.LET:
         return let(stream)
+    elif stream.lookahead() == Token.MACRO:
+        return macro(stream)
     else:
         raise ParserError(stream, Token.LET)
 
@@ -93,7 +95,24 @@ def let(stream):
     else:
         return let_ast(var, size)
 
+def macro(stream):
+    stream.consume(Token.MACRO)
+    name, _ = stream.consume(Token.MACROID)
+    if stream.consume(Token.LPAR):
+        params = [stream.consume(Token.MACROPARAM)]
+        while stream.try_consume(Token.COMMA):
+            params.append(stream.consume(Token.MACROPARAM))
+        stream.consume(Token.RPAR)
+    else:
+        params = []
+    stream.consume(Token.LBRAC)
+    contents = statements(stream)
+    stream.consume(Token.RBRAC)
+    return macro_ast(name, params, contents)
 
-with open('parsetest.mc') as f:
+
+with open('example.mc') as f:
     ast = parser(scanner(f.read(), Token.regexes))
     print(ast.tree())
+
+

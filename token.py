@@ -17,6 +17,8 @@ class Token:
     RPAR =            'RPAR'
     LSBRA =           'LSBRA'
     RSBRA =           'RSBRA'
+    LBRAC =           'LBRAC'
+    RBRAC =           'RBRAC'
     ID =              'ID'
     MACROID =         'MACROID'
     MACROPARAM =      'MACROPARAM'
@@ -43,6 +45,8 @@ class Token:
         (RPAR,        '[)]'                  ),
         (LSBRA,       '\\['                  ),
         (RSBRA,       '\\]'                  ),
+        (LBRAC,       '\\{'                  ),
+        (RBRAC,       '\\}'                  ),
         (ID,          '[a-z_][a-z0-9_]*'     ),
         (MACROID,     '@[a-z_][a-z0-9_]*'    ),
         (MACROPARAM,  '[$][a-z_][a-z0-9_]*'  ),
