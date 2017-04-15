@@ -1,27 +1,28 @@
 class Token:
-    ELSE = 'ELSE'
-    END = 'END'
-    IF = 'IF'
-    INPUT = 'INPUT'
-    LET = 'LET'
-    MACRO = 'MACRO'
-    PRINT = 'PRINT'
-    THEN = 'THEN'
-    ASSIGN = 'ASSIGN'
-    ADD = 'ADD'
-    DIV = 'DIV'
-    MUL = 'MUL'
-    SUB = 'SUB'
-    LPAR = 'LPAR'
-    RPAR = 'RPAR'
-    LSBRA = 'LSBRA'
-    RSBRA = 'RSBRA'
-    ID = 'ID'
-    MACROID = 'MACROID'
-    MACROPARAM = 'MACROPARAM'
-    NUM = 'NUM'
-    CHAR = 'CHAR'
-    STR = 'STR'
+    ELSE =            'ELSE'
+    END =             'END'
+    IF =              'IF'
+    INPUT =           'INPUT'
+    LET =             'LET'
+    MACRO =           'MACRO'
+    PRINT =           'PRINT'
+    THEN =            'THEN'
+    COMMA =           'COMMA'
+    ASSIGN =          'ASSIGN'
+    ADD =             'ADD'
+    DIV =             'DIV'
+    MUL =             'MUL'
+    SUB =             'SUB'
+    LPAR =            'LPAR'
+    RPAR =            'RPAR'
+    LSBRA =           'LSBRA'
+    RSBRA =           'RSBRA'
+    ID =              'ID'
+    MACROID =         'MACROID'
+    MACROPARAM =      'MACROPARAM'
+    NUM =             'NUM'
+    CHAR =            'CHAR'
+    STR =             'STR'
 
     regexes = [
         (ELSE,        'ELSE'                 ),
@@ -32,6 +33,7 @@ class Token:
         (MACRO,       'MACRO'                ),
         (PRINT,       'PRINT'                ),
         (THEN,        'THEN'                 ),
+        (COMMA,       ','                    ),
         (ASSIGN,      '='                    ),
         (ADD,         '[+]'                  ),
         (DIV,         '[/]'                  ),
