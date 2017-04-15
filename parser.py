@@ -42,6 +42,10 @@ class TokenStream:
             self.current = None
         return consumed_literal, consumed_type
 
+    def try_consume(self, *expected):
+        if self.lookahead() in expected:
+            return self.consume(*expected)
+
 def parser(tokens):
     stream = TokenStream(tokens)
     return statements(stream)
@@ -77,17 +81,19 @@ class let_ast:
 def let(stream):
     stream.consume(Token.LET)
     var, _ = stream.consume(Token.ID)
-    if stream.lookahead() == Token.LSBRA:
-        stream.consume(Token.LSBRA)
+    if stream.try_consume(Token.LSBRA):
         size_tok, _ = stream.consume(Token.NUM)
         stream.consume(Token.RSBRA)
         size = int(size_tok)
     else:
         size = 1
-    return let_ast(var, size)
+    if stream.try_consume(Token.ASSIGN):
+        expr = expression()
+        return statements_ast(let_ast(var, size), expr)
+    else:
+        return let_ast(var, size)
 
 
 with open('parsetest.mc') as f:
     ast = parser(scanner(f.read(), Token.regexes))
     print(ast.tree())
-
