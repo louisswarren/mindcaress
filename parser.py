@@ -45,6 +45,24 @@ class TokenStream:
     def try_consume(self, *expected):
         if self.lookahead() in expected:
             return self.consume(*expected)
+# Macros should be preprocessed
+macros = {}
+
+def macrodef(stream):
+    stream.consume(Token.MACRO)
+    name, _ = stream.consume(Token.MACROID)
+    if stream.consume(Token.LPAR):
+        params = [stream.consume(Token.MACROPARAM)[0]]
+        while stream.try_consume(Token.COMMA):
+            params.append(stream.consume(Token.MACROPARAM)[0])
+        stream.consume(Token.RPAR)
+    else:
+        params = []
+    stream.consume(Token.LBRAC)
+    contents = expression(stream)
+    stream.consume(Token.RBRAC)
+    macros[name] = (params, contents)
+
 
 def parser(tokens):
     stream = TokenStream(tokens)
@@ -67,8 +85,6 @@ def statements(stream):
 def statement(stream):
     if stream.lookahead() == Token.LET:
         return let(stream)
-    elif stream.lookahead() == Token.MACRO:
-        return macro(stream)
     else:
         raise ParserError(stream, Token.LET)
 
@@ -82,33 +98,27 @@ class let_ast:
 
 def let(stream):
     stream.consume(Token.LET)
-    var, _ = stream.consume(Token.ID)
     if stream.try_consume(Token.LSBRA):
         size_tok, _ = stream.consume(Token.NUM)
         stream.consume(Token.RSBRA)
         size = int(size_tok)
     else:
         size = 1
+    var, _ = stream.consume(Token.ID)
     if stream.try_consume(Token.ASSIGN):
         expr = expression()
         return statements_ast(let_ast(var, size), expr)
     else:
         return let_ast(var, size)
 
-def macro(stream):
-    stream.consume(Token.MACRO)
-    name, _ = stream.consume(Token.MACROID)
-    if stream.consume(Token.LPAR):
-        params = [stream.consume(Token.MACROPARAM)]
-        while stream.try_consume(Token.COMMA):
-            params.append(stream.consume(Token.MACROPARAM))
-        stream.consume(Token.RPAR)
+def value(stream):
+    if stream.lookahead() == Token.NUM:
+        return literal_ast(int(stream.consume(Token.NUM)[0]))
+    elif stream.lookahead() == Token.CHR:
+        return literal_ast(ord(stream.consume(Token.CHR)[0][1]))
     else:
-        params = []
-    stream.consume(Token.LBRAC)
-    contents = statements(stream)
-    stream.consume(Token.RBRAC)
-    return macro_ast(name, params, contents)
+        raise ParserError(stream, Token.NUM, Token.CHR)
+
 
 
 with open('example.mc') as f:
