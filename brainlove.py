@@ -71,3 +71,4 @@ def repl(evaluator, prompt="? "):
 if __name__ == '__main__':
     echo = "+[,.----]"
     repl(buffer_routine(bfmachine(echo)))
+
