@@ -60,9 +60,13 @@ def buffer_routine(routine):
 def repl(evaluator, prompt="? "):
     """Provides a REPL for interacting with a coroutine."""
     output = next(evaluator)
+    if output:
+        print(output)
     try:
         while True:
             print(evaluator.send(input(prompt)))
+    except EOFError:
+        pass
     except StopIteration as final:
         print(final)
 
