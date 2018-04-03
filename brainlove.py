@@ -31,8 +31,8 @@ def bfmachine(prog):
         elif x == '<':  ptr -= 1
         elif x == '+':  tape[ptr] += 1
         elif x == '-':  tape[ptr] -= 1
-        elif x == '.':  yield tape[ptr]
-        elif x == ',':  tape[ptr] = yield
+        elif x == '.':  yield chr(tape[ptr])
+        elif x == ',':  tape[ptr] = ord((yield))
         elif x == '[':  ctr = jumps[ctr] if tape[ptr] == 0 else ctr
         elif x == ']':  ctr = jumps[ctr] if tape[ptr] != 0 else ctr
         ctr += 1
@@ -48,12 +48,11 @@ def buffer_routine(routine):
         while True:
             if output is None:
                 if not input_stack:
-                    input_text = yield output_buffer
-                    input_stack = list(reversed(input_text))
+                    input_stack = list(reversed((yield output_buffer)))
                     output_buffer = ''
-                output = routine.send(ord(input_stack.pop()))
+                output = routine.send(input_stack.pop())
             else:
-                output_buffer += chr(output)
+                output_buffer += output
                 output = next(routine)
     except StopIteration:
         return output_buffer
