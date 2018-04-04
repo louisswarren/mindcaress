@@ -17,13 +17,14 @@ class ScannerError(Exception):
         return self.message
 
 class ParseError(Exception):
-    def __init__(self, token_stream, *expected_tokens):
+    def __init__(self, tokens, *expected_tokens):
         template = "Received {}, expected {{{}}}"
-        if token_stream.lookahead():
-            token_msg = "{} ('{}')".format(*token_stream.lookahead)
+        if tokens:
+            token_msg = "{} ({})".format(*map(str, tokens.lookahead))
         else:
             token_msg = 'out of tokens'
-        self.message = template.format(token_msg, ', '.join(expected_tokens))
+        expected_msg = ', '.join(map(str, expected_tokens))
+        self.message = template.format(token_msg, expected_msg)
 
     def __str__(self):
         return self.message
@@ -77,23 +78,28 @@ def tokenise(src, token_enum):
 class Lexer(Lookahead):
     """Stream of tokens, with features needed by a parser."""
     def __init__(self, src, token_enum):
+        self.token_enum = token_enum
         return super().__init__(tokenise(src, token_enum))
 
     def lookahead_in(self, *expected):
         return self.lookahead[0] in expected
 
     def consume(self, *expected):
-        """Consume the current token, return the next token's literal
-        representation and type. If expected is empty, all tokens are
-        accepted."""
-        print("Consuming,", self.lookahead)
+        """Consume the current token, return the next token, and its value if
+        it has one. If expected is empty, all tokens are accepted."""
         if expected and not self.lookahead_in(*expected):
             raise ParseError(self, *expected)
-        return next(self)
-
+        token, literal = next(self)
+        value = self.token_enum.evaluate(token, literal)
+        print("Consumed", literal)
+        if value is not None:
+            return token, value
+        else:
+            return token
 
 if __name__ == '__main__':
     with open('example.bas') as f:
         from token import Token
-        for x in Lexer(f.read(), Token):
-            print(x)
+        tokens = Lexer(f.read(), Token)
+        while tokens:
+            print(tokens.consume())

@@ -2,7 +2,7 @@ import enum
 
 class Token(enum.Enum):
     NEWLINE    = "\\n"
-    COMMENT    = 'REM'
+    COMMENT    = 'REM(\s[^\\n]*)?'
     LET        = 'LET'
     IF         = 'IF'
     THEN       = 'THEN'
@@ -25,3 +25,18 @@ class Token(enum.Enum):
     ID         = '[a-z_][a-z0-9_]*[$]?'
     NUM        = '[0-9]+'
     STR        = '"(([^"]|\\\\")*[^\\\\])?"'
+
+    @staticmethod
+    def evaluate(token, literal):
+        if token == Token.COMMENT:
+            if literal.startswith('REM '):
+                return literal[4:]
+            else:
+                assert(literal == 'REM')
+                return ''
+        elif token == Token.ID:
+            return literal
+        elif token == Token.STR:
+            return literal[1:-1]
+        else:
+            return None
