@@ -22,7 +22,8 @@ class Token(enum.Enum):
     SUB        = '-'
     LPAR       = '[(]'
     RPAR       = '[)]'
-    ID         = '[a-z_][a-z0-9_]*[$]?'
+    SID        = '[a-z_][a-z0-9_]*[$]'
+    ID         = '[a-z_][a-z0-9_]*'
     NUM        = '[0-9]+'
     STR        = '"(([^"]|\\\\")*[^\\\\])?"'
 
@@ -34,7 +35,7 @@ class Token(enum.Enum):
             else:
                 assert(literal == 'REM')
                 return ''
-        elif token == Token.ID:
+        elif token in (Token.ID, Token.SID, Token.NUM):
             return literal
         elif token == Token.STR:
             return literal[1:-1]

@@ -85,17 +85,18 @@ class Lexer(Lookahead):
         return self.lookahead[0] in expected
 
     def consume(self, *expected):
-        """Consume the current token, return the next token, and its value if
-        it has one. If expected is empty, all tokens are accepted."""
+        """Consume the current token, and returns its value. If expected is
+        empty, all tokens are accepted. If more than one type is accepted, the
+        type and value is returned."""
         if expected and not self.lookahead_in(*expected):
             raise ParseError(self, *expected)
         token, literal = next(self)
         value = self.token_enum.evaluate(token, literal)
         print("Consumed", literal)
-        if value is not None:
-            return token, value
+        if len(expected) == 1:
+            return value
         else:
-            return token
+            return token, value
 
 if __name__ == '__main__':
     with open('example.bas') as f:
