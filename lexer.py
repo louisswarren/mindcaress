@@ -18,13 +18,12 @@ class ScannerError(Exception):
 
 class ParseError(Exception):
     def __init__(self, tokens, *expected_tokens):
-        template = "Received {}, expected {{{}}}"
         if tokens:
             token_msg = "{} ({})".format(*map(str, tokens.lookahead))
         else:
             token_msg = 'out of tokens'
-        expected_msg = ', '.join(map(str, expected_tokens))
-        self.message = template.format(token_msg, expected_msg)
+        expected_msg = '{' + ', '.join(map(str, expected_tokens)) + '}'
+        self.message = "Received {token_msg}, expected {expected_msg}"
 
     def __str__(self):
         return self.message
@@ -60,6 +59,9 @@ def skip_whitespace(src, pos):
         pos += 1
     return pos
 
+def longest_value(d):
+    return max((x for x in d if d[x]), key=lambda x: len(d[x]))
+
 def tokenise(src, token_enum):
     """Takes source code, and an enumeration of tokens with their regexes.
     Yields pairs (token_name, token_value)."""
@@ -69,33 +71,34 @@ def tokenise(src, token_enum):
         search = regex.match(src[i:])
         if not search:
             raise ScannerError(src, i)
-        matches = ((t, s) for t, s in search.groupdict().items() if s)
-        token_typename, token_literal = max(matches, key=lambda x: len(x[1]))
-        token = token_enum.__members__[token_typename]
+        token_name = longest_value(search.groupdict())
+        token = token_enum.__members__[token_name]
+        token_literal = search[token_name]
         yield token, token_enum.evaluate(token, token_literal)
         i = skip_whitespace(src, i + len(token_literal))
 
 
 class Lexer(Lookahead):
-    """Stream of tokens, with features needed by a parser."""
+    """Stream of tokens and their values, with features needed by a parser."""
     def __init__(self, src, token_enum):
         self.token_enum = token_enum
         return super().__init__(tokenise(src, token_enum))
 
-    def lookahead_in(self, *expected):
-        return self.lookahead[0] in expected
+    @property
+    def next_token(self):
+        return self.lookahead[0]
 
-    def consume(self, *expected_list):
+    def consume_any(self, *expected_list):
         """Consume the current token. Returns its type and value."""
-        if expected_list and not self.lookahead_in(*expected_list):
+        if expected_list and not self.next_token in expected_list:
             raise ParseError(self, *expected_list)
         token, value = next(self)
         print("Consumed", token, value)
         return token, value
 
-    def chomp(self, expected):
+    def consume(self, expected):
         """Consume the current token and return its value."""
-        _, value = self.consume(expected)
+        _, value = self.consume_any(expected)
         return value
 
 if __name__ == '__main__':
@@ -103,4 +106,4 @@ if __name__ == '__main__':
         from token import Token
         tokens = Lexer(f.read(), Token)
         while tokens:
-            print(tokens.consume())
+            print(tokens.consume_any())

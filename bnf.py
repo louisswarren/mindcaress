@@ -8,9 +8,9 @@ def parse(tokens):
 def statements(tokens):
     statements_list = []
     while tokens:
-        if tokens.lookahead_in(Token.COMMENT):
-            tokens.chomp(Token.COMMENT)
-            tokens.chomp(Token.NEWLINE)
+        if tokens.next_token == Token.COMMENT:
+            tokens.consume(Token.COMMENT)
+            tokens.consume(Token.NEWLINE)
         stmt = statement(tokens)
         if stmt:
             statements_list.append(stmt)
@@ -19,45 +19,45 @@ def statements(tokens):
     return Statements_AST(statements_list)
 
 def statement(tokens):
-    if tokens.lookahead_in(Token.LET):
+    if tokens.next_token == Token.LET:
         return let_statement(tokens)
-    elif tokens.lookahead_in(Token.FOR):
+    elif tokens.next_token == Token.FOR:
         return for_block(tokens)
 
 def let_statement(tokens):
-    tokens.chomp(Token.LET)
-    varname = tokens.chomp(Token.ID)
-    tokens.chomp(Token.EQUALS)
+    tokens.consume(Token.LET)
+    varname = tokens.consume(Token.ID)
+    tokens.consume(Token.EQUALS)
     value = expression(tokens)
-    tokens.chomp(Token.NEWLINE)
+    tokens.consume(Token.NEWLINE)
     return Let_Statement_AST(varname, value)
 
 def for_block(tokens):
-    tokens.chomp(Token.FOR)
-    varname = tokens.chomp(Token.ID)
-    tokens.chomp(Token.EQUALS)
+    tokens.consume(Token.FOR)
+    varname = tokens.consume(Token.ID)
+    tokens.consume(Token.EQUALS)
     start = expression(tokens)
-    tokens.chomp(Token.TO)
+    tokens.consume(Token.TO)
     stop = expression(tokens)
-    if tokens.lookahead_in(Token.STEP):
-        tokens.chomp(Token.STEP)
+    if tokens.next_token == Token.STEP:
+        tokens.consume(Token.STEP)
         step = expression(tokens)
     else:
         step = '1'
-    tokens.chomp(Token.NEWLINE)
+    tokens.consume(Token.NEWLINE)
     # This won't work yet as statements won't stop at NEXT
     inner = statements(tokens)
-    tokens.chomp(Token.NEXT)
-    if tokens.lookahead_in(Token.ID):
-        next_varname = tokens.chomp(Token.ID)
+    tokens.consume(Token.NEXT)
+    if tokens.next_token == Token.ID:
+        next_varname = tokens.consume(Token.ID)
         # Need an error message for this
         assert(varname == next_varname)
-    tokens.chomp(Token.NEWLINE)
+    tokens.consume(Token.NEWLINE)
     return For_AST(varname, start, stop, step, inner)
 
 def expression(tokens):
     print("Expression not fully implemented")
-    return tokens.chomp(Token.NUM)
+    return tokens.consume(Token.NUM)
 
 
 with open('example.bas') as f:
