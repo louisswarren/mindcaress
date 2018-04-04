@@ -35,7 +35,7 @@ def scanner(src, token_enum):
             raise ScannerError(src, i)
         matches = ((t, s) for t, s in search.groupdict().items() if s)
         token, token_literal = max(matches, key=lambda x: len(x[1]))
-        yield token, token_literal
+        yield token_enum.__members__[token], token_literal
         i = skip_whitespace(src, i + len(token_literal))
 
 if __name__ == '__main__':
@@ -43,4 +43,3 @@ if __name__ == '__main__':
         from token import Token
         for x in scanner(f.read(), Token):
             print(x)
-
