@@ -16,18 +16,18 @@ class ScannerError(Exception):
     def __str__(self):
         return self.message
 
-def unified_regex(regexes):
-    return re.compile('|'.join(f'(?P<{t}>{r})' for t, r in regexes))
+def unified_regex(token_enum):
+    return re.compile('|'.join(f'(?P<{t.name}>{t.value})' for t in token_enum))
 
 def skip_whitespace(src, pos):
-    while pos < len(src) and src[pos].isspace():
+    while pos < len(src) and src[pos].isspace() and src[pos] != '\n':
         pos += 1
     return pos
 
-def scanner(src, regexes):
-    """Takes source code, and a list of tuples of the form (token_name,
-    token_regex). Yields pairs (token_name, token_literal)."""
-    regex = unified_regex(regexes)
+def scanner(src, token_enum):
+    """Takes source code, and an enumeration of tokens with their regexes.
+    Yields pairs (token_name, token_literal)."""
+    regex = unified_regex(token_enum)
     i = skip_whitespace(src, 0)
     while i < len(src):
         search = regex.match(src[i:])
@@ -39,8 +39,8 @@ def scanner(src, regexes):
         i = skip_whitespace(src, i + len(token_literal))
 
 if __name__ == '__main__':
-    with open('example.mc') as f:
+    with open('example.bas') as f:
         from token import Token
-        for x in scanner(f.read(), Token.regexes):
+        for x in scanner(f.read(), Token):
             print(x)
 
