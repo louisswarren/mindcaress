@@ -62,7 +62,7 @@ def skip_whitespace(src, pos):
 
 def tokenise(src, token_enum):
     """Takes source code, and an enumeration of tokens with their regexes.
-    Yields pairs (token_name, token_literal)."""
+    Yields pairs (token_name, token_value)."""
     regex = re.compile('|'.join(f'(?P<{t.name}>{t.value})' for t in token_enum))
     i = skip_whitespace(src, 0)
     while i < len(src):
@@ -70,8 +70,9 @@ def tokenise(src, token_enum):
         if not search:
             raise ScannerError(src, i)
         matches = ((t, s) for t, s in search.groupdict().items() if s)
-        token, token_literal = max(matches, key=lambda x: len(x[1]))
-        yield token_enum.__members__[token], token_literal
+        token_typename, token_literal = max(matches, key=lambda x: len(x[1]))
+        token = token_enum.__members__[token_typename]
+        yield token, token_enum.evaluate(token, token_literal)
         i = skip_whitespace(src, i + len(token_literal))
 
 
@@ -84,19 +85,18 @@ class Lexer(Lookahead):
     def lookahead_in(self, *expected):
         return self.lookahead[0] in expected
 
-    def consume(self, *expected):
-        """Consume the current token, and returns its value. If expected is
-        empty, all tokens are accepted. If more than one type is accepted, the
-        type and value is returned."""
-        if expected and not self.lookahead_in(*expected):
-            raise ParseError(self, *expected)
-        token, literal = next(self)
-        value = self.token_enum.evaluate(token, literal)
-        print("Consumed", literal)
-        if len(expected) == 1:
-            return value
-        else:
-            return token, value
+    def consume(self, *expected_list):
+        """Consume the current token. Returns its type and value."""
+        if expected_list and not self.lookahead_in(*expected_list):
+            raise ParseError(self, *expected_list)
+        token, value = next(self)
+        print("Consumed", token, value)
+        return token, value
+
+    def chomp(self, expected):
+        """Consume the current token and return its value."""
+        _, value = self.consume(expected)
+        return value
 
 if __name__ == '__main__':
     with open('example.bas') as f:

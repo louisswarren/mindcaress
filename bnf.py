@@ -9,8 +9,8 @@ def statements(tokens):
     statements_list = []
     while tokens:
         if tokens.lookahead_in(Token.COMMENT):
-            tokens.consume(Token.COMMENT)
-            tokens.consume(Token.NEWLINE)
+            tokens.chomp(Token.COMMENT)
+            tokens.chomp(Token.NEWLINE)
         stmt = statement(tokens)
         if stmt:
             statements_list.append(stmt)
@@ -25,39 +25,39 @@ def statement(tokens):
         return for_block(tokens)
 
 def let_statement(tokens):
-    tokens.consume(Token.LET)
-    varname = tokens.consume(Token.ID)
-    tokens.consume(Token.EQUALS)
+    tokens.chomp(Token.LET)
+    varname = tokens.chomp(Token.ID)
+    tokens.chomp(Token.EQUALS)
     value = expression(tokens)
-    tokens.consume(Token.NEWLINE)
+    tokens.chomp(Token.NEWLINE)
     return Let_Statement_AST(varname, value)
 
 def for_block(tokens):
-    tokens.consume(Token.FOR)
-    varname = tokens.consume(Token.ID)
-    tokens.consume(Token.EQUALS)
+    tokens.chomp(Token.FOR)
+    varname = tokens.chomp(Token.ID)
+    tokens.chomp(Token.EQUALS)
     start = expression(tokens)
-    tokens.consume(Token.TO)
+    tokens.chomp(Token.TO)
     stop = expression(tokens)
     if tokens.lookahead_in(Token.STEP):
-        tokens.consume(Token.STEP)
+        tokens.chomp(Token.STEP)
         step = expression(tokens)
     else:
         step = '1'
-    tokens.consume(Token.NEWLINE)
+    tokens.chomp(Token.NEWLINE)
     # This won't work yet as statements won't stop at NEXT
     inner = statements(tokens)
-    tokens.consume(Token.NEXT)
+    tokens.chomp(Token.NEXT)
     if tokens.lookahead_in(Token.ID):
-        next_varname = tokens.consume(Token.ID)
+        next_varname = tokens.chomp(Token.ID)
         # Need an error message for this
         assert(varname == next_varname)
-    tokens.consume(Token.NEWLINE)
+    tokens.chomp(Token.NEWLINE)
     return For_AST(varname, start, stop, step, inner)
 
 def expression(tokens):
     print("Expression not fully implemented")
-    return tokens.consume(Token.NUM)
+    return tokens.chomp(Token.NUM)
 
 
 with open('example.bas') as f:
