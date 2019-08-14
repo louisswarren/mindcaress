@@ -43,8 +43,8 @@ def buffer_routine(routine):
     returned."""
     input_stack = []
     output_buffer = ''
-    output = next(routine)
     try:
+        output = next(routine)
         while True:
             if output is None:
                 if not input_stack:
@@ -59,10 +59,10 @@ def buffer_routine(routine):
 
 def repl(evaluator, prompt="? "):
     """Provides a REPL for interacting with a coroutine."""
-    output = next(evaluator)
-    if output:
-        print(output)
     try:
+        output = next(evaluator)
+        if output:
+            print(output)
         while True:
             print(evaluator.send(input(prompt)))
     except EOFError:
@@ -70,8 +70,12 @@ def repl(evaluator, prompt="? "):
     except StopIteration as final:
         print(final)
 
-
 if __name__ == '__main__':
+    import sys
     echo = "+[,.----]"
-    repl(buffer_routine(bfmachine(echo)))
-
+    if len(sys.argv) > 1:
+        with open(sys.argv[1]) as f:
+            prog = f.read()
+    else:
+        prog = echo
+    repl(buffer_routine(bfmachine(prog)))
