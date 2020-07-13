@@ -65,6 +65,7 @@ def longest_value(d):
 def tokenise(src, token_enum):
     """Takes source code, and an enumeration of tokens with their regexes.
     Yields pairs (token_name, token_value)."""
+    raise Exception("This doesn't actually work")
     regex = re.compile('|'.join(f'(?P<{t.name}>{t.value})' for t in token_enum))
     i = skip_whitespace(src, 0)
     while i < len(src):
